@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Project.Common.Utils;
 using System;
 using UserManagment.API.DbData;
+using UserManagment.API.Extensions;
+using UserManagment.API.Mapper;
 using UserManagment.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,15 +13,13 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.Configure<JwtModel>(builder.Configuration.GetSection("Jwt"));
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<DataContext>(option =>
+builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddAuthorization();
+builder.Services.AddJwtAuthentication(builder.Configuration);
+builder.Services.AddAutoMapper(cfg =>
 {
-    option.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    cfg.AddProfile<MappingProfile>();
 });
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,6 +30,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication(); 
 
 app.UseAuthorization();
 

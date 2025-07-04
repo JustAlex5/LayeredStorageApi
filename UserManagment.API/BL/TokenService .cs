@@ -29,7 +29,7 @@ namespace UserManagment.API.BL
             new Claim(ClaimTypes.Role, user.Role.ToString()) 
         };
 
-            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512);
+            var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
