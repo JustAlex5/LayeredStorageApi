@@ -16,8 +16,6 @@ namespace Project.Common.Utils
         public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
             var key = configuration["Jwt:Key"];
-            Console.WriteLine("Sukaaaaa");
-            Console.WriteLine(key);
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {

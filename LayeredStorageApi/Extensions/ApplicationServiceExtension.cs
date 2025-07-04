@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using LayeredStorageApi.DbData;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using UserManagment.API.BL;
-using UserManagment.API.DbData;
-using UserManagment.API.Models;
+using Project.Common.Models;
 
-namespace UserManagment.API.Extensions
+namespace LayeredStorageApi.Extensions
 {
     public static class ApplicationServiceExtension
     {
@@ -17,8 +15,8 @@ namespace UserManagment.API.Extensions
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Name = "Authorization",
-                    Type = SecuritySchemeType.Http, 
-                    Scheme = "bearer",              
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
                     BearerFormat = "JWT",
                     In = ParameterLocation.Header,
                     Description = "Enter your JWT token only (without 'Bearer ' prefix)."
@@ -43,15 +41,15 @@ namespace UserManagment.API.Extensions
     });
             });
 
-            services.Configure<JwtModel>(configuration.GetSection("Jwt"));
             var connectionString = configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<DataContext>(option =>
+            services.AddDbContext<DataLayerContext>(option =>
             {
                 option.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             });
 
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IUserServices, UserServices>();
+
+            services.UseRedisCache(configuration);
+            services.Configure<CacheConfig>(configuration.GetSection(nameof(CacheConfig)));
 
 
             return services;
