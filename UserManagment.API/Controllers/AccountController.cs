@@ -5,7 +5,7 @@ using Project.Common.Dtos.Auth;
 using Project.Common.Dtos.User;
 using Project.Common.Enums;
 using Project.Common.Models;
-using UserManagment.API.BL;
+using UserManagment.API.Services.Interfaces;
 
 namespace UserManagment.API.Controllers
 {

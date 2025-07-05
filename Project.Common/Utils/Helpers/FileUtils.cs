@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Project.Common.Utils
+namespace Project.Common.Utils.Helpers
 {
     public static class FileUtils
     {

@@ -1,13 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using UserManagment.API.BL;
 using UserManagment.API.DbData;
 using UserManagment.API.Models;
+using UserManagment.API.Services.Implementations;
+using UserManagment.API.Services.Interfaces;
 
 namespace UserManagment.API.Extensions
 {
-    public static class ApplicationServiceExtension
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Project.Common.Models;
 
-namespace LayeredStorageApi.BL
+namespace LayeredStorageApi.Services.Interfaces
 {
     public interface IIncertBulk
     {

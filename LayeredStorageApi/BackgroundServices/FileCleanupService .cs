@@ -4,13 +4,15 @@ namespace LayeredStorageApi.BackgroundServices
     public class FileCleanupService : BackgroundService
     {
         private readonly ILogger<FileCleanupService> _logger;
-        private readonly string _directoryPath = "Data"; // same folder where you store JSON files
+        private readonly string _directoryPath;
         private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(30);
         private readonly TimeSpan _fileRetention = TimeSpan.FromMinutes(30);
 
-        public FileCleanupService(ILogger<FileCleanupService> logger)
+        public FileCleanupService(ILogger<FileCleanupService> logger, IConfiguration config)
         {
             _logger = logger;
+            _directoryPath = config["FileService:BasePath"] ?? "Data";
+
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

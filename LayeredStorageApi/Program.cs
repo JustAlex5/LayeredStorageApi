@@ -1,5 +1,5 @@
 using LayeredStorageApi.Extensions;
-using Project.Common.Utils;
+using Project.Common.Utils.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 

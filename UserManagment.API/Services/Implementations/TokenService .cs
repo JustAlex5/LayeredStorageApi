@@ -6,8 +6,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using UserManagment.API.Models;
+using UserManagment.API.Services.Interfaces;
 
-namespace UserManagment.API.BL
+namespace UserManagment.API.Services.Implementations
 {
     public class TokenService : ITokenService
     {
@@ -26,7 +27,7 @@ namespace UserManagment.API.BL
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Role, user.Role.ToString()) 
+            new Claim(ClaimTypes.Role, user.Role.ToString())
         };
 
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256);

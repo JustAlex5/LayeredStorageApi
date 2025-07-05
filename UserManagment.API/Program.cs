@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Project.Common.Utils;
+using Project.Common.Utils.Extensions;
 using System;
 using UserManagment.API.DbData;
 using UserManagment.API.Extensions;
