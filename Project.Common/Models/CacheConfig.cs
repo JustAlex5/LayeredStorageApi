@@ -9,7 +9,7 @@ namespace Project.Common.Models
     public class CacheConfig
     {
         public string ConnectionString { get; set; }
-        public TimeSpan ExperationTime { get; set; }
+        public TimeSpan ExpirationTime { get; set; }
         public bool UseSsl { get; set; }
         public string PfxPath { get; set; }
         public string PfxPass { get; set; }

@@ -1,7 +1,10 @@
-﻿using LayeredStorageApi.DbData;
+﻿using LayeredStorageApi.BackgroundServices;
+using LayeredStorageApi.BL;
+using LayeredStorageApi.DbData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Project.Common.Models;
+using Project.Common.Services;
 
 namespace LayeredStorageApi.Extensions
 {
@@ -50,6 +53,9 @@ namespace LayeredStorageApi.Extensions
 
             services.UseRedisCache(configuration);
             services.Configure<CacheConfig>(configuration.GetSection(nameof(CacheConfig)));
+            services.AddScoped<IIncertBulk, IncertBulk>();
+            services.AddSingleton<ICache, RedisCache>();
+            services.AddHostedService<FileCleanupService>();
 
 
             return services;
