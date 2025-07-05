@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Project.Common.Interfaces.Data;
 using Project.Common.Interfaces.Services;
 using Project.Common.Models;
+using Project.Common.Models.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace LayeredStorageApi.BL.Storage
@@ -14,26 +13,63 @@ namespace LayeredStorageApi.BL.Storage
     {
         private readonly ICache _cache;
         private readonly CacheConfig _cacheConfig;
-        public RedisStorage(ICache cache, IOptions<CacheConfig> options)
+        private readonly ILogger<RedisStorage> _logger;
+        private const string Action = nameof(RedisStorage);
+
+        public RedisStorage(ICache cache, IOptions<CacheConfig> options, ILogger<RedisStorage> logger)
         {
             _cacheConfig = options.Value;
             _cache = cache;
+            _logger = logger;
         }
-        private string CacheKeyHelper(int id) => $"Data/{id}";
+
+        private string CacheKeyHelper(int id) => $"IncertBulk/{id}";
 
         public async Task DeleteDataAsync(int id)
         {
-            await _cache.RemoveAsync(CacheKeyHelper(id));
+            var key = CacheKeyHelper(id);
+            try
+            {
+                await _cache.RemoveAsync(key);
+                _logger.LogInformation("{Action}: Deleted key from Redis. ID: {Id}", Action, id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Action}: Failed to delete Redis key. ID: {Id}", Action, id);
+            }
         }
 
         public async Task SaveDataAsync(int id, string data)
         {
-            await _cache.SetRecordAsync(CacheKeyHelper(id), data, _cacheConfig.ExpirationTime);
+            var key = CacheKeyHelper(id);
+            try
+            {
+                await _cache.SetRecordAsync(key, data, _cacheConfig.ExpirationTime);
+                _logger.LogInformation("{Action}: Saved data to Redis. ID: {Id}", Action, id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Action}: Failed to save data to Redis. ID: {Id}", Action, id);
+            }
         }
 
         public async Task<string?> TryGetDataAsync(int id)
         {
-            return await _cache.GetRecordAsync(CacheKeyHelper(id));
+            var key = CacheKeyHelper(id);
+            try
+            {
+                var res = await _cache.GetRecordAsync(key);
+                if (res != null)
+                    _logger.LogInformation("{Action}: Data found in Redis. ID: {Id}", Action, id);
+                else
+                    _logger.LogInformation("{Action}: No data in Redis. ID: {Id}", Action, id);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Action}: Failed to get data from Redis. ID: {Id}", Action, id);
+                return null;
+            }
         }
     }
 }

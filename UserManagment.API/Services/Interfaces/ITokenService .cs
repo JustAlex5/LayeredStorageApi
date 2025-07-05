@@ -1,6 +1,6 @@
 ﻿using Project.Common.Dtos.User;
 
-namespace UserManagment.API.BL
+namespace UserManagment.API.Services.Interfaces
 {
     public interface ITokenService
     {

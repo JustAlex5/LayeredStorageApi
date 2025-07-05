@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Project.Common.Interfaces.Services;
 using Project.Common.Models;
+using Project.Common.Models.Core;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.Common.Services
+namespace Project.Common.Services.Redis
 {
 
     public class RedisCache : ICache
@@ -40,7 +41,7 @@ namespace Project.Common.Services
             {
                 return JsonConvert.DeserializeObject<T>(res.ToString(), _jsonSettings);
             }
-            return default(T);
+            return default;
         }
 
         public async Task<T?> GetRecordAsync<T>(string key)
@@ -48,9 +49,9 @@ namespace Project.Common.Services
             var res = await RedisDb.StringGetAsync(key).ConfigureAwait(false);
             if (res.HasValue)
             {
-                return JsonConvert.DeserializeObject<T>(res.ToString(),_jsonSettings);
+                return JsonConvert.DeserializeObject<T>(res.ToString(), _jsonSettings);
             }
-            return default(T);
+            return default;
         }
 
         public async Task<string?> GetRecordAsync(string key)
@@ -64,8 +65,8 @@ namespace Project.Common.Services
         {
             try
             {
-                var json = JsonConvert.SerializeObject(data,_jsonSettings);
-                await RedisDb.StringSetAsync(key, json, ttl).ConfigureAwait(false);
+                //var json = JsonConvert.SerializeObject(data, _jsonSettings);
+                await RedisDb.StringSetAsync(key, data.ToString(), ttl).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

@@ -9,7 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.Common.Utils
+namespace Project.Common.Utils.Extensions
 {
     public static class AuthExtensions
     {

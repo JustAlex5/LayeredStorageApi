@@ -4,13 +4,14 @@ using Project.Common.Dtos.Auth;
 using Project.Common.Dtos.User;
 using Project.Common.Enums;
 using Project.Common.Models;
-using Project.Common.Utils;
+using Project.Common.Utils.Helpers;
 using System.Security.Cryptography;
 using System.Text;
 using UserManagment.API.DbData;
 using UserManagment.API.Models;
+using UserManagment.API.Services.Interfaces;
 
-namespace UserManagment.API.BL
+namespace UserManagment.API.Services.Implementations
 {
     public class UserServices : IUserServices
     {
@@ -35,7 +36,7 @@ namespace UserManagment.API.BL
                 var user = await _context.AppUsers.FirstOrDefaultAsync(x => x.UserName == login.Username);
                 if (user == null)
                 {
-                    _logger.LogWarning("{Action}: Login failed for username: {Username} - user not found", Action,login.Username);
+                    _logger.LogWarning("{Action}: Login failed for username: {Username} - user not found", Action, login.Username);
                     return ResponseFactory.Error<UserDto>("UserName or Password are incorrect", 401);
                 }
 
@@ -46,7 +47,7 @@ namespace UserManagment.API.BL
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{Action}: Error occurred during login for username: {Username}", Action,login.Username);
+                _logger.LogError(ex, "{Action}: Error occurred during login for username: {Username}", Action, login.Username);
                 return ResponseFactory.Error<UserDto>("An error occurred during login.");
             }
         }
@@ -57,7 +58,7 @@ namespace UserManagment.API.BL
             {
                 if (await _context.AppUsers.AnyAsync(x => x.UserName == newUser.Username))
                 {
-                    _logger.LogWarning("{Action}: Register failed: username already taken - {Username}" ,Action, newUser.Username);
+                    _logger.LogWarning("{Action}: Register failed: username already taken - {Username}", Action, newUser.Username);
                     return ResponseFactory.Error<UserDto>("This user name has been taken", StatusCodes.Status400BadRequest);
                 }
 
@@ -80,7 +81,7 @@ namespace UserManagment.API.BL
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{Action}: Error occurred while registering user: {Username}", Action,newUser.Username);
+                _logger.LogError(ex, "{Action}: Error occurred while registering user: {Username}", Action, newUser.Username);
                 return ResponseFactory.Error<UserDto>("An error occurred during registration.");
             }
         }
@@ -92,7 +93,7 @@ namespace UserManagment.API.BL
                 var currentUser = await _context.AppUsers.FirstOrDefaultAsync(x => x.Id == id);
                 if (currentUser == null)
                 {
-                    _logger.LogWarning("{Action}: UpdateRole failed: user with ID {UserId} not found", Action,id);
+                    _logger.LogWarning("{Action}: UpdateRole failed: user with ID {UserId} not found", Action, id);
                     return ResponseFactory.Error<UserDto>("User with the given ID does not exist.");
                 }
 
@@ -105,7 +106,7 @@ namespace UserManagment.API.BL
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "{Action}: Error occurred while updating role for user ID: {UserId}", Action,id);
+                _logger.LogError(ex, "{Action}: Error occurred while updating role for user ID: {UserId}", Action, id);
                 return ResponseFactory.Error<UserDto>("An error occurred while updating the user role.");
             }
         }

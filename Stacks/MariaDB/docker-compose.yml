@@ -1,67 +1,24 @@
 version: '3.9'
 services:
-  dbclient:
-    image: alpine
+  mariadb:
+    image: justalex5/layered-mariadb:11.4.6
+    restart: always
     environment:
-      - BACKUP_ENABLED=1
-      - BACKUP_INTERVAL=60
-      - BACKUP_PATH=/data
-      - BACKUP_FILENAME=db_backup
-    networks:
-      - dbnet
-    entrypoint: |
-      sh -c 'sh -s << EOF
-      apk add --no-cache mysql-client
-      while true
-        do
-          if [ $$BACKUP_ENABLED == 1 ]
-            then
-              sleep $$BACKUP_INTERVAL
-              mkdir -p $$BACKUP_PATH/$$(date +%F)
-              echo "$$(date +%FT%H.%m) - Making Backup to : $$BACKUP_PATH/$$(date +%F)/$$BACKUP_FILENAME-$$(date +%FT%H.%m).sql.gz"
-              mysqldump -u root -ppassword -h dblb --all-databases | gzip > $$BACKUP_PATH/$$(date +%F)/$$BACKUP_FILENAME-$$(date +%FT%H.%m).sql.gz
-              find $$BACKUP_PATH -mtime 7 -delete
-          fi
-        done
-      EOF'
+      - DB_SERVICE_NAME=dbcluster
+      - MARIADB_ROOT_PASSWORD=password
+      - MARIADB_DATABASE=metadata
+      - MARIADB_USER=mydbuser
+      - MARIADB_PASSWORD=mydbpass
     volumes:
-      - vol_dbclient:/data
-    deploy:
-      mode: replicated
-      replicas: 1
-
-  dbcluster:
-    image: toughiq/mariadb-cluster
-    networks:
-      - dbnet
-    environment:
-      - DB_SERVICE_NAME=dbcluster
-      - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=mydb
-      - MYSQL_USER=mydbuser
-      - MYSQL_PASSWORD=mydbpass
-    deploy:
-      mode: replicated
-      replicas: 1
-
-  dblb:
-    image: toughiq/maxscale
-    networks:
-      - dbnet
+      - mariadb_data:/var/lib/mysql
     ports:
-      - 3306:3306
-    environment:
-      - DB_SERVICE_NAME=dbcluster
-      - ENABLE_ROOT_USER=1
-    deploy:
-      mode: replicated
-      replicas: 1
+      - "3306:3306"
+    networks:
+      - shared-backend
 
 volumes:
-  vol_dbclient:
-    driver: local
-
+  mariadb_data:
+  
 networks:
-  dbnet:
-    name: dbnet
-    driver: overlay
+  shared-backend:
+    external: true

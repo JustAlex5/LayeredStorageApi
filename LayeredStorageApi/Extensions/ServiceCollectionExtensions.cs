@@ -2,16 +2,19 @@
 using LayeredStorageApi.BL;
 using LayeredStorageApi.BL.Storage;
 using LayeredStorageApi.DbData;
+using LayeredStorageApi.Services.Implementations;
+using LayeredStorageApi.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Project.Common.Interfaces.Data;
 using Project.Common.Interfaces.Services;
 using Project.Common.Models;
-using Project.Common.Services;
+using Project.Common.Models.Core;
+using Project.Common.Services.Redis;
 
 namespace LayeredStorageApi.Extensions
 {
-    public static class ApplicationServiceExtension
+    public static class ServiceCollectionExtensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
@@ -64,6 +67,8 @@ namespace LayeredStorageApi.Extensions
             });
 
 
+
+
             services.UseRedisCache(configuration);
             services.Configure<CacheConfig>(configuration.GetSection(nameof(CacheConfig)));
             services.AddScoped<IIncertBulk, IncertBulk>();
@@ -74,6 +79,11 @@ namespace LayeredStorageApi.Extensions
             services.AddScoped<FileStorage>();
             services.AddScoped<DbStorage>();
             services.AddScoped<IStorageFactory, StorageFactory>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddHttpClient<IFileStorage, SeaweedStorage>(client =>
+            {
+                client.BaseAddress = new Uri(configuration["FileService:SeaweedUrl"]);
+            });
 
 
 

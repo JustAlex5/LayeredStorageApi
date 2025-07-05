@@ -1,0 +1,51 @@
+version: '3.9'
+
+configs:
+  usermanagment-config:
+    file: ./appsettings_user_managment.json
+
+  layeredstorage-config:
+    file: ./appsettings_layered_storage.json
+
+services:
+  usermanagment_api:
+    image: justalex5/usermanagment.api:1.0.0
+    ports:
+      - target: 80
+        published: 5001
+        protocol: tcp
+        mode: host
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    networks:
+      - shared-backend
+    configs:
+      - source: usermanagment-config
+        target: /app/appsettings.json
+
+  layeredstorage_api:
+    image: justalex5/layeredstorage.api:1.0.0
+    ports:
+      - target: 80
+        published: 5002
+        protocol: tcp
+        mode: host
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    networks:
+      - shared-backend
+    configs:
+      - source: layeredstorage-config
+        target: /app/appsettings.json
+
+networks:
+  shared-backend:
+    external: true

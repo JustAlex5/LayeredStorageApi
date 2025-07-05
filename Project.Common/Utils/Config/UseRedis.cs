@@ -2,7 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Project.Common.Interfaces.Services;
 using Project.Common.Models;
-using Project.Common.Services;
+using Project.Common.Models.Core;
+using Project.Common.Services.Redis;
 using StackExchange.Redis;
 using System.Net.Security;
 using System.Security.Authentication;
