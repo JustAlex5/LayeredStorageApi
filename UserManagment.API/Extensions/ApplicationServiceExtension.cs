@@ -50,6 +50,16 @@ namespace UserManagment.API.Extensions
                 option.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
             });
 
+            services.AddCors(options =>
+             {
+                 options.AddPolicy("AllowAll", policy =>
+                 {
+                     policy.AllowAnyOrigin()
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                 });
+             });
+
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserServices, UserServices>();
 

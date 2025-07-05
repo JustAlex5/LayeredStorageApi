@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using UserManagment.API.Enums;
+﻿using Project.Common.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace UserManagment.API.Models
 {

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Project.Common.Interfaces.Services;
 using Project.Common.Models;
 using Project.Common.Services;
 using StackExchange.Redis;

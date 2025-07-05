@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Project.Common.Dtos.Auth;
+using Project.Common.Dtos.User;
+using Project.Common.Enums;
 using Project.Common.Models;
 using Project.Common.Utils;
 using System.Security.Cryptography;
 using System.Text;
 using UserManagment.API.DbData;
-using UserManagment.API.Dtos;
-using UserManagment.API.Enums;
 using UserManagment.API.Models;
 
 namespace UserManagment.API.BL
@@ -18,6 +18,7 @@ namespace UserManagment.API.BL
         private readonly DataContext _context;
         private readonly ILogger<UserServices> _logger;
         private readonly IMapper _mapper;
+        private const string Action = nameof(UserServices);
 
         public UserServices(ITokenService tokenService, DataContext context, ILogger<UserServices> logger, IMapper mapper)
         {
@@ -29,54 +30,84 @@ namespace UserManagment.API.BL
 
         public async Task<ResponseModel<UserDto>> LoginAsync(LoginDto login)
         {
-            var user = await _context.AppUsers.FirstOrDefaultAsync(x =>
-            x.UserName == login.Username);
-            if (user == null) return ResponseFactory.Error<UserDto>("UserName or Password are incorect", 401);
+            try
+            {
+                var user = await _context.AppUsers.FirstOrDefaultAsync(x => x.UserName == login.Username);
+                if (user == null)
+                {
+                    _logger.LogWarning("{Action}: Login failed for username: {Username} - user not found", Action,login.Username);
+                    return ResponseFactory.Error<UserDto>("UserName or Password are incorrect", 401);
+                }
 
-            var userDto = _mapper.Map<UserDto>(user);
-            userDto.Token = _tokenService.CreateToken(userDto);
+                var userDto = _mapper.Map<UserDto>(user);
+                userDto.Token = _tokenService.CreateToken(userDto);
 
-            return ResponseFactory.Success(userDto, "Login successful");
-
-
+                return ResponseFactory.Success(userDto, "Login successful");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Action}: Error occurred during login for username: {Username}", Action,login.Username);
+                return ResponseFactory.Error<UserDto>("An error occurred during login.");
+            }
         }
 
         public async Task<ResponseModel<UserDto>> RegisterAsync(LoginDto newUser)
         {
-            if (await _context.AppUsers.AnyAsync(x => x.UserName == newUser.Username)) 
-                return ResponseFactory.Error<UserDto>("This user name has been taken", StatusCodes.Status400BadRequest);
-
-            using var hmac = new HMACSHA512();
-
-            var user = new AppUser()
+            try
             {
-                UserName = newUser.Username.ToLower(),
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(newUser.Password)),
-                PasswordSalt = hmac.Key
-            };
+                if (await _context.AppUsers.AnyAsync(x => x.UserName == newUser.Username))
+                {
+                    _logger.LogWarning("{Action}: Register failed: username already taken - {Username}" ,Action, newUser.Username);
+                    return ResponseFactory.Error<UserDto>("This user name has been taken", StatusCodes.Status400BadRequest);
+                }
 
-            _context.AppUsers.Add(user);
-            await _context.SaveChangesAsync();
+                using var hmac = new HMACSHA512();
 
-            var userDto = _mapper.Map<UserDto>(user);
-            userDto.Token = _tokenService.CreateToken(userDto);
-            return ResponseFactory.Success(userDto);
+                var user = new AppUser()
+                {
+                    UserName = newUser.Username.ToLower(),
+                    PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(newUser.Password)),
+                    PasswordSalt = hmac.Key
+                };
 
+                _context.AppUsers.Add(user);
+                await _context.SaveChangesAsync();
+
+                var userDto = _mapper.Map<UserDto>(user);
+                userDto.Token = _tokenService.CreateToken(userDto);
+
+                return ResponseFactory.Success(userDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Action}: Error occurred while registering user: {Username}", Action,newUser.Username);
+                return ResponseFactory.Error<UserDto>("An error occurred during registration.");
+            }
         }
 
-        public async Task<ResponseModel<UserDto>> UpdateRoll(int id , UserRoleEnum role )
+        public async Task<ResponseModel<UserDto>> UpdateRole(int id, UserRoleEnum role)
         {
-            var currentUser = await _context.AppUsers.FirstOrDefaultAsync(x => x.Id == id);
-            if (currentUser == null)
-                return ResponseFactory.Error<UserDto>("User with the given ID does not exist.");
+            try
+            {
+                var currentUser = await _context.AppUsers.FirstOrDefaultAsync(x => x.Id == id);
+                if (currentUser == null)
+                {
+                    _logger.LogWarning("{Action}: UpdateRole failed: user with ID {UserId} not found", Action,id);
+                    return ResponseFactory.Error<UserDto>("User with the given ID does not exist.");
+                }
 
-            currentUser.Role = role;
-            _context.AppUsers.Update(currentUser);
-            await _context.SaveChangesAsync();
-            var userDto = _mapper.Map<UserDto>(currentUser);
-            return ResponseFactory.Success(userDto);
+                currentUser.Role = role;
+                _context.AppUsers.Update(currentUser);
+                await _context.SaveChangesAsync();
 
+                var userDto = _mapper.Map<UserDto>(currentUser);
+                return ResponseFactory.Success(userDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "{Action}: Error occurred while updating role for user ID: {UserId}", Action,id);
+                return ResponseFactory.Error<UserDto>("An error occurred while updating the user role.");
+            }
         }
     }
-
 }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using UserManagment.API.Dtos;
+using Project.Common.Dtos.User;
 using UserManagment.API.Models;
 
 namespace UserManagment.API.Mapper

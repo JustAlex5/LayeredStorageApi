@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Project.Common.Interfaces.Services;
 using Project.Common.Models;
 using StackExchange.Redis;
 using System;

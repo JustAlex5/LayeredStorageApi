@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Project.Common.Dtos.User;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using UserManagment.API.Dtos;
 using UserManagment.API.Models;
 
 namespace UserManagment.API.BL
