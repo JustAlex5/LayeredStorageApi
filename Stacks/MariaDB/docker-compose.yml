@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   mariadb:
-    image: bitnami/mariadb:11.4.6
+    image: justalex5/layered-mariadb:11.4.6
     restart: always
     environment:
       - DB_SERVICE_NAME=dbcluster
@@ -13,6 +13,12 @@ services:
       - mariadb_data:/var/lib/mysql
     ports:
       - "3306:3306"
+    networks:
+      - shared-backend
 
 volumes:
   mariadb_data:
+  
+networks:
+  shared-backend:
+    external: true

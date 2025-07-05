@@ -8,6 +8,8 @@ services:
       - 19333:19333
       - 9324:9324
     command: "master -ip=master -ip.bind=0.0.0.0 -metricsPort=9324"
+    networks:
+      - shared-backend
   volume:
     image: chrislusf/seaweedfs # use a remote image
     ports:
@@ -19,6 +21,8 @@ services:
       - master
     volumes:
       - seaweed_data:/data
+    networks:
+      - shared-backend
   filer:
     image: chrislusf/seaweedfs # use a remote image
     ports:
@@ -26,6 +30,8 @@ services:
       - 18888:18888
       - 9326:9326
     command: 'filer -master="master:9333" -ip.bind=0.0.0.0 -metricsPort=9326'
+    networks:
+      - shared-backend
     tty: true
     stdin_open: true
     depends_on:
@@ -61,3 +67,6 @@ services:
       - s3
 volumes:
   seaweed_data:
+networks:
+  shared-backend:
+    external: true

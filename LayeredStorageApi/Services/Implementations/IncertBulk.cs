@@ -35,7 +35,7 @@ namespace LayeredStorageApi.Services.Implementations
             _storageFactory = factory;
         }
 
-        public async Task<ResponseModel<int>> IncertBulkFromBody(string data)
+        public async Task<ResponseModel<int>> IncertBulkFromBody(string data,SourceTypeEnum source= SourceTypeEnum.Manual)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace LayeredStorageApi.Services.Implementations
                 var entity = new DataStore
                 {
                     Data = data,
-                    SourceType = SourceTypeEnum.Manual
+                    SourceType = source
                 };
 
                 await _repository.AddAsync(entity);

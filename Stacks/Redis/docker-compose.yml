@@ -8,6 +8,8 @@ services:
     command: redis-server --save 20 1 --loglevel warning --requirepass redis123
     volumes: 
       - cache:/data
+    networks:
+      - shared-backend
   redisinsight:
     image: redislabs/redisinsight:latest
     container_name: redisinsight
@@ -17,4 +19,8 @@ services:
 volumes:
   cache:
     driver: local
+    
+networks:
+  shared-backend:
+    external: true
 

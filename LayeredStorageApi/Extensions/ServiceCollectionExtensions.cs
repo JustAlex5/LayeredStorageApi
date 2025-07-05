@@ -79,6 +79,11 @@ namespace LayeredStorageApi.Extensions
             services.AddScoped<FileStorage>();
             services.AddScoped<DbStorage>();
             services.AddScoped<IStorageFactory, StorageFactory>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddHttpClient<IFileStorage, SeaweedStorage>(client =>
+            {
+                client.BaseAddress = new Uri(configuration["FileService:SeaweedUrl"]);
+            });
 
 
 

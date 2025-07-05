@@ -24,7 +24,7 @@ namespace LayeredStorageApi.Services.Implementations
             {
                 var fileId = await _fileStorage.UploadAsync(fileStream, fileName,file.ContentType);
                 _logger.LogInformation("Uploaded file {FileName} with ID {FileId}", fileName, fileId);
-                return await _incertBulk.IncertBulkFromBody(fileId);
+                return await _incertBulk.IncertBulkFromBody(fileId,Project.Common.Enums.SourceTypeEnum.FileUpload);
 
             }
             catch (Exception ex)
