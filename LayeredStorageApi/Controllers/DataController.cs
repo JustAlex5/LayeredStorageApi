@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Project.Common.Models;
+using Project.Common.Utils;
 using System.Text.Json;
 
 namespace LayeredStorageApi.Controllers
@@ -23,7 +24,24 @@ namespace LayeredStorageApi.Controllers
             return StatusCode(res.StatusCode,res);
         }
 
-        [HttpGet("get-daya-by-id/{id}")]
+        [HttpGet("get-data-by-id/{id}")]
         [Authorize]
+        public async Task<ActionResult<ResponseModel<string>>> GetDataById(int id)
+        {
+            var res = await _incertBulk.GetDataByIdAsync(id);
+            return StatusCode(res.StatusCode,res);
+
+        }
+
+        [HttpPut ("update-data/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateDataById(int id)
+        {
+
+        }
+
+
+
+
     }
 }
