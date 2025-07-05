@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Project.Common.Models
+namespace Project.Common.Models.Core
 {
     public class CacheConfig
     {

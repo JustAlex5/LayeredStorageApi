@@ -1,4 +1,4 @@
-﻿using UserManagment.API.Dtos;
+﻿using Project.Common.Dtos.User;
 
 namespace UserManagment.API.BL
 {

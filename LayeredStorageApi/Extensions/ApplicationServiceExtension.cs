@@ -1,8 +1,11 @@
 ﻿using LayeredStorageApi.BackgroundServices;
 using LayeredStorageApi.BL;
+using LayeredStorageApi.BL.Storage;
 using LayeredStorageApi.DbData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Project.Common.Interfaces.Data;
+using Project.Common.Interfaces.Services;
 using Project.Common.Models;
 using Project.Common.Services;
 
@@ -44,6 +47,16 @@ namespace LayeredStorageApi.Extensions
     });
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
             var connectionString = configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<DataLayerContext>(option =>
             {
@@ -56,6 +69,12 @@ namespace LayeredStorageApi.Extensions
             services.AddScoped<IIncertBulk, IncertBulk>();
             services.AddSingleton<ICache, RedisCache>();
             services.AddHostedService<FileCleanupService>();
+            services.AddScoped<IDataRepository, DataRepository>();
+            services.AddScoped<RedisStorage>();
+            services.AddScoped<FileStorage>();
+            services.AddScoped<DbStorage>();
+            services.AddScoped<IStorageFactory, StorageFactory>();
+
 
 
             return services;

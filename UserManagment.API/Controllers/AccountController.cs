@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Project.Common.Dtos.Auth;
+using Project.Common.Dtos.User;
+using Project.Common.Enums;
 using Project.Common.Models;
 using UserManagment.API.BL;
-using UserManagment.API.Dtos;
-using UserManagment.API.Enums;
 
 namespace UserManagment.API.Controllers
 {
@@ -37,9 +38,9 @@ namespace UserManagment.API.Controllers
 
         [HttpPut("update-user")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateUser([FromQuery] int id, [FromQuery]UserRoleEnum userRole)
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRoleDto roleDto)
         {
-            var  res = await _userServices.UpdateRoll(id, userRole);
+            var  res = await _userServices.UpdateRole(roleDto.Id, roleDto.UserRole);
             return StatusCode(res.StatusCode, res);
         }
     }

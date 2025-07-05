@@ -5,8 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Project.Common.Enums;
+using Project.Common.Interfaces.Data;
+using Project.Common.Interfaces.Services;
 using Project.Common.Models;
-using Project.Common.Services;
 using Project.Common.Utils;
 using System;
 using System.Text.Json;
@@ -17,17 +18,19 @@ namespace LayeredStorageApi.BL
     {
         private readonly ILogger<IncertBulk> _logger;
         private readonly object _lock = new object();
-        private readonly DataLayerContext _context;
         private readonly ICache _redisCache;
+        private readonly IDataRepository _repository;
         private readonly CacheConfig _cacheConfig;
+        private readonly IStorageFactory _storageFactory;
         private const string Action = nameof(IncertBulk);
 
-        public IncertBulk(ILogger<IncertBulk> logger,DataLayerContext context,ICache cache, IOptions<CacheConfig> options)
+        public IncertBulk(ILogger<IncertBulk> logger,ICache cache, IOptions<CacheConfig> options,IDataRepository repository,IStorageFactory factory)
         {
-            _context = context;
             _logger = logger;
             _redisCache = cache;
             _cacheConfig = options.Value;
+            _repository = repository;
+            _storageFactory = factory;
         }
 
         public async Task<ResponseModel<int>>IncertBulkFromBody(string data)
@@ -44,9 +47,8 @@ namespace LayeredStorageApi.BL
 
                 };
 
-
-                _context.DataStores.Add(entity);
-                await _context.SaveChangesAsync();
+                _repository.AddAsync(entity);
+                await _repository.SaveChangesAsync();
                 var key = CacheKeyHelper(entity.Id);
                 var fileName = GetFileNameHelper(entity.Id);
                 await _redisCache.SetRecordAsync(key, data, _cacheConfig.ExpirationTime);
@@ -63,43 +65,30 @@ namespace LayeredStorageApi.BL
             
         }
 
-        public async Task<ResponseModel<string> >GetDataByIdAsync(int id)
+        public async Task<ResponseModel<string>> GetDataByIdAsync(int id)
         {
-            var cacheKey = CacheKeyHelper(id);
-            var fileName = GetFileNameHelper(id);
 
-            try
+
+            foreach (var storage in _storageFactory.GetRetrievalOrder())
             {
-                var dataFromChache = await _redisCache.GetRecordAsync(cacheKey);
-                if (dataFromChache != null) return ResponseFactory.Success(dataFromChache);
-
-                var dataFromFile = await FileUtils.ReadDataAsync<string>("Data", fileName);
-                if (dataFromFile != null) return ResponseFactory.Success(dataFromFile);
-
-                var dataFromDb = await _context.DataStores.FirstOrDefaultAsync(x => x.Id == id);
-
-                if (dataFromDb != null) return ResponseFactory.Success(dataFromDb.Data);
-                
-
-
-                return ResponseFactory.Error<string>($"No data found for id {id}.");
-
-
+                var data = await storage.TryGetDataAsync(id);
+                if (data != null)
+                {
+                    return ResponseFactory.Success(data);
+                }
             }
-            catch (Exception ex)
-            {
-                return ResponseFactory.Error<string>(ex.Message);
-            }
+            return ResponseFactory.Error<string>("Id not found",404); 
+
         }
 
-        public async Task<ActionResult<ResponseModel<bool>>> UpdateDataByIdAsync(int id, string data)
+        public async Task<ResponseModel<bool>> UpdateDataByIdAsync(int id, string data)
         {
             var cacheKey = CacheKeyHelper(id);
             var fileName = GetFileNameHelper(id);
 
             try
             {
-                var dataFromDb = await _context.DataStores.FirstOrDefaultAsync(x => x.Id == id);
+                var dataFromDb = await _repository.GetByIdAsync(id);
 
                 if (dataFromDb == null)
                     return ResponseFactory.Error<bool>("Data with the given ID not found");
@@ -111,8 +100,8 @@ namespace LayeredStorageApi.BL
                 await FileUtils.DeleteFileAsync("Data", fileName);
 
                 dataFromDb.Data = data;
-                _context.DataStores.Update(dataFromDb);
-                await _context.SaveChangesAsync();
+                _repository.UpdateAsync(dataFromDb);
+                await _repository.SaveChangesAsync();
 
                 return ResponseFactory.Success(true, "Data updated successfully");
             }

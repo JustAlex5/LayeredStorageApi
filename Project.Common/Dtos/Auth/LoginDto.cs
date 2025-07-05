@@ -1,4 +1,4 @@
-﻿namespace UserManagment.API.Dtos
+﻿namespace Project.Common.Dtos.Auth
 {
     public class LoginDto
     {

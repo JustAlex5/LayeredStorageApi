@@ -1,6 +1,6 @@
-﻿using UserManagment.API.Enums;
+﻿using Project.Common.Enums;
 
-namespace UserManagment.API.Dtos
+namespace Project.Common.Dtos.User
 {
     public class UserDto
     {

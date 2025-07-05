@@ -1,6 +1,7 @@
 ﻿using LayeredStorageApi.BL;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Project.Common.Dtos.Data;
 using Project.Common.Models;
 using Project.Common.Utils;
 using System.Text.Json;
@@ -33,11 +34,13 @@ namespace LayeredStorageApi.Controllers
 
         }
 
-        [HttpPut ("update-data/{id}")]
+        [HttpPut("update-data/{id}")]
         [Authorize]
-        public async Task<IActionResult> UpdateDataById(int id)
+        public async Task<ActionResult<ResponseModel<bool>>> UpdateDataById(int id, [FromBody] UpdateDataDto dto)
         {
-
+            var rawData = dto.Data.GetRawText();
+            var res = await _incertBulk.UpdateDataByIdAsync(id, rawData);
+            return StatusCode(res.StatusCode, res);
         }
 
 
