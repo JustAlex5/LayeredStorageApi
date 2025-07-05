@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Project.Common.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace Project.Common.Models
         public int Id { get; set; }
         public string Data { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public SourceTypeEnum SourceType { get; set; } = SourceTypeEnum.Manual;
     }
 }
