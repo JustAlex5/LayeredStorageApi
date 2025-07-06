@@ -368,7 +368,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"id\": 8,\n  \"userRole\": \"Admin\"\n}"
+					"raw": "{\n  \"id\": 2,\n  \"userRole\": \"Admin\"\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5001/api/Account/update-user",
@@ -402,7 +402,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"id\": 8,\n  \"userRole\": \"Admin\"\n}"
+					"raw": "{\n  \"id\": 2,\n  \"userRole\": \"User\"\n}"
 				},
 				"url": {
 					"raw": "http://localhost:5001/api/Account/update-user",
