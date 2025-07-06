@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "68d7c6a2-72cf-4252-9880-abecb6576d7d",
-		"name": "Layered Storage API Collection Copy",
+		"_postman_id": "5d149d40-7ec1-444d-a9de-20db0bec5ad3",
+		"name": "Layered Storage API Collection User Admin Tests",
 		"description": "Postman collection for testing UserManagment and LayeredStorage APIs with JWT authentication.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "11421454"
@@ -86,7 +86,7 @@
 			"response": []
 		},
 		{
-			"name": "Insert a New Data",
+			"name": "Admin Insert an Empty Data",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -121,7 +121,37 @@
 			"response": []
 		},
 		{
-			"name": "Update Current data",
+			"name": "Admin - Update Current data",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const mockObject = {\r",
+							"  id: 5,\r",
+							"  timestamp: new Date().toISOString(),\r",
+							"  status: \"active\",\r",
+							"  user: {\r",
+							"    id: Math.floor(Math.random() * 1000),\r",
+							"    name: `Test User ${Math.floor(Math.random() * 100)}`,\r",
+							"    role: \"User\"\r",
+							"  },\r",
+							"  meta: {\r",
+							"    retry: false,\r",
+							"    tags: [\"mock\", \"auto\"],\r",
+							"    version: \"1.0.\" + Math.floor(Math.random() * 100)\r",
+							"  }\r",
+							"};\r",
+							"\r",
+							"// Store the mock object as a raw JSON string\r",
+							"pm.collectionVariables.set(\"mock_data_raw\", JSON.stringify(mockObject));\r",
+							"console.log(\"Mock data generated:\", mockObject);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -133,7 +163,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"data\": \"string\"\r\n}",
+					"raw": "{\r\n  \"data\": {{mock_data_raw}}\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -158,7 +188,7 @@
 			"response": []
 		},
 		{
-			"name": "Update Current data Second Time",
+			"name": "Admin - Update Current data Second Time",
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -170,7 +200,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"data\": \"string\"\r\n}",
+					"raw": "{\r\n  \"data\": {{mock_data_raw}}\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -200,7 +230,6 @@
 				{
 					"listen": "test",
 					"script": {
-						"type": "text/javascript",
 						"exec": [
 							"if (pm.response.code === 200) {",
 							"  var jsonData = pm.response.json();",
@@ -213,7 +242,24 @@
 							"} else {",
 							"  console.error(\"User registration failed:\", pm.response.code);",
 							"}"
-						]
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const randomSuffix = Math.floor(Math.random() * 10000); // random number\r",
+							"const username = `user_${randomSuffix}`;\r",
+							"\r",
+							"// store it for use in request body and future requests\r",
+							"pm.collectionVariables.set(\"dynamic_username\", username);\r",
+							"pm.collectionVariables.set(\"dynamic_password\", \"user\"); // static or random if needed"
+						],
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
@@ -222,7 +268,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"username\": \"user\",\r\n  \"password\": \"user\"\r\n}",
+					"raw": "{\r\n  \"username\": \"{{dynamic_username}}\",\r\n  \"password\": \"{{dynamic_password}}\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -246,34 +292,7 @@
 			"response": []
 		},
 		{
-			"name": "Insert Data as User",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{user_token}}",
-						"type": "text"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:5002/api/Data/incert-data'",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5002",
-					"path": [
-						"api",
-						"Data",
-						"incert-data'"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Insert Data as Admin",
+			"name": "User- Insert Data",
 			"request": {
 				"method": "POST",
 				"header": [
@@ -298,6 +317,135 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Admin - Insert Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"example\": \"new data object\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5002/api/Data/incert-data",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5002",
+					"path": [
+						"api",
+						"Data",
+						"incert-data"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Admin - Update User Role",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 8,\n  \"userRole\": \"Admin\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/Account/update-user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Account",
+						"update-user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Admin - Update User Role Back to User",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": 8,\n  \"userRole\": \"Admin\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:5001/api/Account/update-user",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5001",
+					"path": [
+						"api",
+						"Account",
+						"update-user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "User - Get Data",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{user_token}}"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5002/api/Data/get-data-by-id/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5002",
+					"path": [
+						"api",
+						"Data",
+						"get-data-by-id",
+						"3"
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"variable": [
@@ -309,6 +457,18 @@
 			"key": "user_token",
 			"value": "",
 			"type": "string"
+		},
+		{
+			"key": "dynamic_username",
+			"value": ""
+		},
+		{
+			"key": "dynamic_password",
+			"value": ""
+		},
+		{
+			"key": "mock_data_raw",
+			"value": ""
 		}
 	]
 }
