@@ -33,10 +33,10 @@ Each service is deployed as a **Docker Swarm stack**. Services are connected usi
 
 ```bash
 docker network create --driver overlay --attachable shared-backend
-docker stack deploy -c mariadb-stack.yml mariadb-stack
-docker stack deploy -c redis-stack.yml redis-stack
-docker stack deploy -c seaweedfs-stack.yml seaweedfs-stack
-docker stack deploy -c backend-stack.yml backend-stack
+docker stack deploy -c docker-compose.yml mariadb
+docker stack deploy -c docker-compose.yml redis
+docker stack deploy -c seaweedfs-compose.yml seaweedfs
+docker stack deploy -c docker-compose.yml backend
 ```
 
 ---
@@ -80,15 +80,30 @@ Once the services are running, you can explore the APIs using Swagger:
 - [http://localhost:5001/swagger](http://localhost:5001/swagger) → UserManagment API
 - [http://localhost:5002/swagger](http://localhost:5002/swagger) → LayeredStorage API
 
+
 ---
 
-##  Future Improvements
+##  Usage & Authentication
 
-- Add `GET` download support for files via SeaweedFS
-- Add API Gateway (e.g. Traefik or Ocelot)
-- Integrate Serilog + centralized logging
-- Use Docker Secrets for sensitive configuration
-- Add healthchecks and readiness probes
+The base admin credentials for accessing the API are:
+
+```json
+{
+  "username": "admin",
+  "password": "admin"
+}
+```
+
+###  Steps to Use the API (via Swagger or Postman)
+
+1. **Login** using `POST /api/Account/login`.
+2. Copy the JWT token returned under `data.token` from the response.
+3. **Use the token** in all authenticated endpoints:
+   - **In Swagger**: Click `Authorize` and paste only the token (no `Bearer ` prefix).
+   - **In Postman**: Add a header to your requests:
+     ```http
+     Authorization: Bearer <your_token_here>
+     ```
 
 ---
 
