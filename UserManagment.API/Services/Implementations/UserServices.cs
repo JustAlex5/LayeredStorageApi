@@ -37,7 +37,16 @@ namespace UserManagment.API.Services.Implementations
                 if (user == null)
                 {
                     _logger.LogWarning("{Action}: Login failed for username: {Username} - user not found", Action, login.Username);
-                    return ResponseFactory.Error<UserDto>("UserName or Password are incorrect", 401);
+                    return ResponseFactory.Error<UserDto>("Username or password are incorrect", 401);
+                }
+
+                using var hmac = new HMACSHA512(user.PasswordSalt);
+                var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(login.Password));
+
+                if (!CryptographicOperations.FixedTimeEquals(computedHash, user.PasswordHash))
+                {
+                    _logger.LogWarning("{Action}: Login failed for username: {Username} - invalid password", Action, login.Username);
+                    return ResponseFactory.Error<UserDto>("Username or password are incorrect", 401);
                 }
 
                 var userDto = _mapper.Map<UserDto>(user);
@@ -50,7 +59,9 @@ namespace UserManagment.API.Services.Implementations
                 _logger.LogError(ex, "{Action}: Error occurred during login for username: {Username}", Action, login.Username);
                 return ResponseFactory.Error<UserDto>("An error occurred during login.");
             }
+
         }
+
 
         public async Task<ResponseModel<UserDto>> RegisterAsync(LoginDto newUser)
         {
