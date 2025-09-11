@@ -16,17 +16,17 @@ using System.Text.Json;
 
 namespace LayeredStorageApi.Services.Implementations
 {
-    public class IncertBulk : IIncertBulk
+    public class DataDal : IInsertDal
     {
-        private readonly ILogger<IncertBulk> _logger;
+        private readonly ILogger<DataDal> _logger;
         private readonly object _lock = new object();
         private readonly ICache _redisCache;
         private readonly IDataRepository _repository;
         private readonly CacheConfig _cacheConfig;
         private readonly IStorageFactory _storageFactory;
-        private const string Action = nameof(IncertBulk);
+        private const string Action = nameof(DataDal);
 
-        public IncertBulk(ILogger<IncertBulk> logger, ICache cache, IOptions<CacheConfig> options, IDataRepository repository, IStorageFactory factory)
+        public DataDal(ILogger<DataDal> logger, ICache cache, IOptions<CacheConfig> options, IDataRepository repository, IStorageFactory factory)
         {
             _logger = logger;
             _redisCache = cache;
@@ -35,7 +35,8 @@ namespace LayeredStorageApi.Services.Implementations
             _storageFactory = factory;
         }
 
-        public async Task<ResponseModel<int>> IncertBulkFromBody(string data,SourceTypeEnum source= SourceTypeEnum.Manual)
+        public async Task<ResponseModel<int>> InsertBulkFromBody(string data,
+            SourceTypeEnum source = SourceTypeEnum.Manual)
         {
             try
             {

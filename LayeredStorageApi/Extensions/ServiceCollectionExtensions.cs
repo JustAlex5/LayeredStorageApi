@@ -71,7 +71,7 @@ namespace LayeredStorageApi.Extensions
 
             services.UseRedisCache(configuration);
             services.Configure<CacheConfig>(configuration.GetSection(nameof(CacheConfig)));
-            services.AddScoped<IIncertBulk, IncertBulk>();
+            services.AddScoped<IInsertDal, DataDal>();
             services.AddSingleton<ICache, RedisCache>();
             services.AddHostedService<FileCleanupService>();
             services.AddScoped<IDataRepository, DataRepository>();

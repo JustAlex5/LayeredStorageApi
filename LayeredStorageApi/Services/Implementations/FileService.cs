@@ -9,13 +9,13 @@ namespace LayeredStorageApi.Services.Implementations
 
         private readonly IFileStorage _fileStorage;
         private readonly ILogger<FileService> _logger;
-        private readonly IIncertBulk _incertBulk;
+        private readonly IInsertDal _insertDal;
 
-        public FileService(IFileStorage fileStorage, ILogger<FileService> logger, IIncertBulk incertBulk)
+        public FileService(IFileStorage fileStorage, ILogger<FileService> logger, IInsertDal insertDal)
         {
             _fileStorage = fileStorage;
             _logger = logger;
-            _incertBulk = incertBulk;
+            _insertDal = insertDal;
         }
 
         public async Task<ResponseModel<int>?> UploadFileAsync(Stream fileStream, string fileName , IFormFile file)
@@ -24,7 +24,7 @@ namespace LayeredStorageApi.Services.Implementations
             {
                 var fileId = await _fileStorage.UploadAsync(fileStream, fileName,file.ContentType);
                 _logger.LogInformation("Uploaded file {FileName} with ID {FileId}", fileName, fileId);
-                return await _incertBulk.IncertBulkFromBody(fileId,Project.Common.Enums.SourceTypeEnum.FileUpload);
+                return await _insertDal.InsertBulkFromBody(fileId,Project.Common.Enums.SourceTypeEnum.FileUpload);
 
             }
             catch (Exception ex)

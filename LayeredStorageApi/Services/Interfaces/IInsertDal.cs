@@ -4,9 +4,9 @@ using Project.Common.Models;
 
 namespace LayeredStorageApi.Services.Interfaces
 {
-    public interface IIncertBulk
+    public interface IInsertDal
     {
-        Task<ResponseModel<int>> IncertBulkFromBody(string data, SourceTypeEnum source = SourceTypeEnum.Manual);
+        Task<ResponseModel<int>> InsertBulkFromBody(string data, SourceTypeEnum source = SourceTypeEnum.Manual);
         Task<ResponseModel<string>> GetDataByIdAsync(int id);
         Task<ResponseModel<bool>> UpdateDataByIdAsync(int id, string data);
 
